@@ -1,0 +1,19 @@
+# Dependencies
+**/node_modules
+**/package-lock.json
+
+# Environment Variables
+**/.env
+**/.env.*
+
+# Next.js
+**/ .next/
+**/out/
+
+# Backend
+server/uploads/*
+!server/uploads/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
