@@ -1,12 +1,13 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
+import fileService from './services/file.service';
 import Sidebar from './components/Sidebar';
 import ChatWindow from './components/ChatWindow';
 import DeleteModal from './components/DeleteModal';
-
-const API_BASE = 'http://localhost:5000';
+import { useAuth } from './context/AuthContext';
+import { useRouter } from 'next/navigation';
+import api from './services/api.service';
 
 export default function Home() {
   const [messages, setMessages] = useState([
@@ -20,6 +21,9 @@ export default function Home() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [pendingFile, setPendingFile] = useState(null);
 
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -28,8 +32,22 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (!loading && !user) {
+      router.push('/login');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
     scrollToBottom();
   }, [messages, isThinking]);
+
+  if (loading || !user) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-black text-white">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,112,243,0.3)]"></div>
+      </div>
+    );
+  }
 
   const handleFileUpload = (e) => {
     const selectedFile = e.target.files[0];
@@ -41,12 +59,8 @@ export default function Home() {
 
   const uploadFile = async (selectedFile) => {
     setIsUploading(true);
-    const formData = new FormData();
-    formData.append('file', selectedFile);
     try {
-      const response = await axios.post(`${API_BASE}/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      await fileService.upload(selectedFile);
       setIsProcessed(true);
       setFile(selectedFile);
       setMessages(prev => [...prev, {
@@ -90,8 +104,8 @@ export default function Home() {
     setIsThinking(true);
 
     try {
-      const response = await axios.post(`${API_BASE}/chat`, { prompt: userMessage });
-      setMessages(prev => [...prev, { role: 'ai', content: response.data.response }]);
+      const response = await api.post('/chat', { prompt: userMessage });
+      setMessages(prev => [...prev, { role: 'ai', content: response.response }]);
     } catch (error) {
       console.error('Chat error', error);
       setMessages(prev => [...prev, {
@@ -105,7 +119,7 @@ export default function Home() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`${API_BASE}/delete-file`);
+      await fileService.delete();
     } catch (error) {
       console.error('Failed to delete file from server', error);
     }
@@ -119,7 +133,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-transparent text-foreground overflow-hidden relative">
+    <div className="flex h-screen bg-black text-white overflow-hidden">
       <Sidebar
         file={file}
         pendingFile={pendingFile}

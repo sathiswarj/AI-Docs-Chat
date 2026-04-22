@@ -39,8 +39,7 @@ const deleteFile = (req, res) => {
   }
 };
 
-// Exporting both for use in chatController if needed, 
-// though a better way is a shared state manager or DB.
+// Exporting for use in other routes
 module.exports = { 
   uploadFile, 
   deleteFile, 
