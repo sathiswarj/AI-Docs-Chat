@@ -1,6 +1,7 @@
 const fs = require('fs');
 const docService = require('../services/docService');
 const chunkingService = require('../services/chunkingService');
+const embeddingService = require('../services/embeddingService');
 const Document = require('../models/Document');
 
 const uploadFile = async (req, res) => {
@@ -12,7 +13,15 @@ const uploadFile = async (req, res) => {
     await Document.findOneAndDelete({ user: req.user._id });
 
     const text = await docService.extractText(req.file.path);
-    const chunks = chunkingService.splitIntoChunks(text);
+    const chunkTexts = chunkingService.splitIntoChunks(text);
+    
+    // Generate embeddings for each chunk
+    console.log(`Generating embeddings for ${chunkTexts.length} chunks...`);
+    const chunks = [];
+    for (const chunkText of chunkTexts) {
+      const embedding = await embeddingService.generateEmbedding(chunkText);
+      chunks.push({ text: chunkText, embedding });
+    }
 
     const document = await Document.create({
       user: req.user._id,

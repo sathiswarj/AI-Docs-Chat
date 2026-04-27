@@ -1,4 +1,7 @@
 const Message = require('../models/Message');
+const Document = require('../models/Document');
+const embeddingService = require('../services/embeddingService');
+const aiService = require('../services/aiService');
 
 const getChatHistory = async (req, res) => {
   try {
@@ -23,8 +26,33 @@ const chat = async (req, res) => {
       content: prompt
     });
 
-    // Dummy AI response logic for now (since actual LLM integration wasn't requested yet)
-    const aiResponse = `I received your message: "${prompt}". In a real scenario, I would analyze your document chunks here.`;
+    // Semantic Search Logic
+    const activeDoc = await Document.findOne({ user: req.user._id });
+    let context = "";
+
+    if (activeDoc && activeDoc.chunks.length > 0) {
+      console.log('Performing semantic search...');
+      const queryEmbedding = await embeddingService.generateEmbedding(prompt);
+      
+      // Calculate similarity for each chunk
+      const similarities = activeDoc.chunks.map(chunk => ({
+        text: chunk.text,
+        score: embeddingService.cosineSimilarity(queryEmbedding, chunk.embedding)
+      }));
+
+      // Sort by score and take top 3
+      const topChunks = similarities
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 3)
+        .filter(c => c.score > 0.3); // Threshold to avoid irrelevant noise
+
+      context = topChunks.map(c => c.text).join("\n\n");
+      console.log(`Found ${topChunks.length} relevant chunks for context.`);
+    }
+
+    // Use the Local AI Service to generate a response
+    console.log('Generating AI response...');
+    const aiResponse = await aiService.generateAnswer(prompt, context);
 
     // Save AI response
     const aiMsg = await Message.create({
