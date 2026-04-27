@@ -10,7 +10,8 @@ import {
   Send,
   Zap,
   Eye,
-  X
+  X,
+  Square
 } from 'lucide-react';
 
 export default function ChatWindow({
@@ -26,7 +27,8 @@ export default function ChatWindow({
   messagesEndRef,
   extractedText,
   showPreview,
-  setShowPreview
+  setShowPreview,
+  onStop
 }) {
   return (
     <main className="flex-1 flex flex-col relative mesh-gradient min-h-screen">
@@ -107,7 +109,13 @@ export default function ChatWindow({
                 <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.15s]" />
                 <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500">Processing Intelligence</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-zinc-500 mr-4">Processing Intelligence</span>
+              <button
+                onClick={onStop}
+                className="flex items-center gap-2 px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all active:scale-95"
+              >
+                <Square size={10} fill="currentColor" /> Stop
+              </button>
             </div>
           </div>
         )}
@@ -143,16 +151,27 @@ export default function ChatWindow({
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={isProcessed ? "Type command..." : "Awaiting document..."}
-                className="w-full bg-zinc-900 border border-white/5 focus:border-primary/40 rounded-3xl py-5 pl-8 pr-20 outline-none transition-all placeholder:text-zinc-700 text-[15px] text-zinc-100 shadow-2xl backdrop-blur-2xl"
+                placeholder={isProcessed ? "Ask a question..." : "Awaiting document..."}
+                className="w-full bg-zinc-900 border border-white/5 focus:border-primary/40 rounded-3xl py-5 pl-8 pr-40 outline-none transition-all placeholder:text-zinc-700 text-[15px] text-zinc-100 shadow-2xl backdrop-blur-2xl"
               />
-              <button
-                type="submit"
-                disabled={!input.trim() || (!isProcessed && !pendingFile) || isThinking || isUploading}
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-12 h-12 bg-white disabled:bg-zinc-800 text-black disabled:text-zinc-600 rounded-2xl flex items-center justify-center transition-all hover:bg-primary hover:text-white shadow-xl cursor-pointer"
-              >
-                <Send size={22} />
-              </button>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
+                {isProcessed && !input && (
+                  <button
+                    type="button"
+                    onClick={() => setInput("Summarize this document for me")}
+                    className="h-10 px-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border border-white/5"
+                  >
+                    Summarize
+                  </button>
+                )}
+                <button
+                  type="submit"
+                  disabled={!input.trim() || (!isProcessed && !pendingFile) || isThinking || isUploading}
+                  className="w-12 h-12 bg-white disabled:bg-zinc-800 text-black disabled:text-zinc-600 rounded-2xl flex items-center justify-center transition-all hover:bg-primary hover:text-white shadow-xl cursor-pointer"
+                >
+                  <Send size={22} />
+                </button>
+              </div>
             </div>
           </form>
         </div>

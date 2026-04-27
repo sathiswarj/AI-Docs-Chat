@@ -23,6 +23,7 @@ export default function Home() {
   const [pendingFile, setPendingFile] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [showPreview, setShowPreview] = useState(false);
+  const abortControllerRef = useRef(null);
 
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -94,7 +95,7 @@ export default function Home() {
       setExtractedText(response.text || "");
       setMessages(prev => [...prev, {
         role: 'ai',
-        content: `Document "${selectedFile.name}" processed successfully! You can now ask me anything about it.`
+        content: `✨ Document "${selectedFile.name}" is now part of my intelligence nexus! I've analyzed it and split it into several sections for better recall. What would you like to know about it?`
       }]);
       return true;
     } catch (error) {
@@ -131,18 +132,32 @@ export default function Home() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setInput('');
     setIsThinking(true);
+    abortControllerRef.current = new AbortController();
 
     try {
-      const response = await api.post('/chat', { prompt: userMessage });
+      const response = await api.post('/chat', { prompt: userMessage }, { 
+        signal: abortControllerRef.current.signal 
+      });
       setMessages(prev => [...prev, { role: 'ai', content: response.response }]);
     } catch (error) {
-      console.error('Chat error', error);
-      setMessages(prev => [...prev, {
-        role: 'ai',
-        content: 'I encountered an error while thinking. Please check the backend connection.'
-      }]);
+      if (error.name === 'AbortError') {
+        setMessages(prev => [...prev, { role: 'ai', content: 'Generation stopped by user.' }]);
+      } else {
+        console.error('Chat error', error);
+        setMessages(prev => [...prev, {
+          role: 'ai',
+          content: 'I encountered an error while thinking. Please check the backend connection.'
+        }]);
+      }
     } finally {
       setIsThinking(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const stopThinking = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
   };
 
@@ -186,6 +201,7 @@ export default function Home() {
         extractedText={extractedText}
         showPreview={showPreview}
         setShowPreview={setShowPreview}
+        onStop={stopThinking}
       />
 
       <DeleteModal
