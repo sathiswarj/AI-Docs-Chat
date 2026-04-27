@@ -1,9 +1,7 @@
 const fs = require('fs');
-const pdfService = require('../services/pdfService');
-
-// State managed at the controller level for this basic version
-let documentContext = "";
-let currentFilePath = "";
+const docService = require('../services/docService');
+const chunkingService = require('../services/chunkingService');
+const Document = require('../models/Document');
 
 const uploadFile = async (req, res) => {
   try {
@@ -11,26 +9,59 @@ const uploadFile = async (req, res) => {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    currentFilePath = req.file.path;
-    const text = await pdfService.extractText(currentFilePath);
-    documentContext = text;
+    await Document.findOneAndDelete({ user: req.user._id });
+
+    const text = await docService.extractText(req.file.path);
+    const chunks = chunkingService.splitIntoChunks(text);
+
+    const document = await Document.create({
+      user: req.user._id,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      filePath: req.file.path,
+      extractedText: text,
+      chunks: chunks
+    });
 
     res.json({
       message: 'File processed successfully',
-      charCount: documentContext.length
+      charCount: text.length,
+      chunkCount: chunks.length,
+      text: text,
+      filename: req.file.originalname
     });
   } catch (error) {
-    console.error('Upload Error:', error);
-    res.status(500).json({ error: 'Failed to process document' });
+    console.error('Upload & Processing Error:', error);
+    res.status(500).json({ error: `Failed to process document: ${error.message}` });
   }
 };
 
-const deleteFile = (req, res) => {
+const getActiveDocument = async (req, res) => {
   try {
-    if (currentFilePath && fs.existsSync(currentFilePath)) {
-      fs.unlinkSync(currentFilePath);
-      currentFilePath = "";
-      documentContext = "";
+    const document = await Document.findOne({ user: req.user._id });
+    if (!document) {
+      return res.json({ active: false });
+    }
+    res.json({
+      active: true,
+      filename: document.originalName,
+      text: document.extractedText,
+      chunkCount: document.chunks.length,
+      charCount: document.extractedText.length
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch active document' });
+  }
+};
+
+const deleteFile = async (req, res) => {
+  try {
+    const document = await Document.findOne({ user: req.user._id });
+    if (document) {
+      if (fs.existsSync(document.filePath)) {
+        fs.unlinkSync(document.filePath);
+      }
+      await Document.findByIdAndDelete(document._id);
       return res.json({ message: 'File deleted' });
     }
     res.status(404).json({ error: 'No file to delete' });
@@ -39,9 +70,8 @@ const deleteFile = (req, res) => {
   }
 };
 
-// Exporting for use in other routes
-module.exports = { 
-  uploadFile, 
-  deleteFile, 
-  getContext: () => documentContext 
+module.exports = {
+  uploadFile,
+  getActiveDocument,
+  deleteFile
 };

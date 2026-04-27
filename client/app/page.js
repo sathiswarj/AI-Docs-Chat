@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import fileService from './services/file.service';
+import chatService from './services/chat.service';
 import Sidebar from './components/Sidebar';
 import ChatWindow from './components/ChatWindow';
 import DeleteModal from './components/DeleteModal';
@@ -11,7 +12,7 @@ import api from './services/api.service';
 
 export default function Home() {
   const [messages, setMessages] = useState([
-    { role: 'ai', content: 'Hello! Please upload a PDF document so I can help you analyze it.' }
+    { role: 'ai', content: 'Hello! Please upload a document (PDF, Word, or Text) so I can help you analyze it.' }
   ]);
   const [input, setInput] = useState('');
   const [file, setFile] = useState(null);
@@ -20,6 +21,8 @@ export default function Home() {
   const [isProcessed, setIsProcessed] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [pendingFile, setPendingFile] = useState(null);
+  const [extractedText, setExtractedText] = useState("");
+  const [showPreview, setShowPreview] = useState(false);
 
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -41,6 +44,31 @@ export default function Home() {
     scrollToBottom();
   }, [messages, isThinking]);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      if (user) {
+        try {
+          // Fetch Active Document
+          const docRes = await fileService.getActiveDocument();
+          if (docRes.active) {
+            setFile({ name: docRes.filename });
+            setExtractedText(docRes.text);
+            setIsProcessed(true);
+          }
+
+          // Fetch Chat History
+          const history = await chatService.getHistory();
+          if (history && history.length > 0) {
+            setMessages(history.map(m => ({ role: m.role, content: m.content })));
+          }
+        } catch (error) {
+          console.error('Failed to fetch initial data', error);
+        }
+      }
+    };
+    fetchData();
+  }, [user]);
+
   if (loading || !user) {
     return (
       <div className="h-screen flex items-center justify-center bg-black text-white">
@@ -60,9 +88,10 @@ export default function Home() {
   const uploadFile = async (selectedFile) => {
     setIsUploading(true);
     try {
-      await fileService.upload(selectedFile);
+      const response = await fileService.upload(selectedFile);
       setIsProcessed(true);
       setFile(selectedFile);
+      setExtractedText(response.text || "");
       setMessages(prev => [...prev, {
         role: 'ai',
         content: `Document "${selectedFile.name}" processed successfully! You can now ask me anything about it.`
@@ -125,9 +154,11 @@ export default function Home() {
     }
     setFile(null);
     setPendingFile(null);
+    setExtractedText("");
+    setShowPreview(false);
     setIsProcessed(false);
     setInput('');
-    setMessages([{ role: 'ai', content: 'Hello! Please upload a PDF document so I can help you analyze it.' }]);
+    setMessages([{ role: 'ai', content: 'Hello! Please upload a document (PDF, Word, or Text) so I can help you analyze it.' }]);
     if (fileInputRef.current) fileInputRef.current.value = "";
     setShowDeleteModal(false);
   };
@@ -152,6 +183,9 @@ export default function Home() {
         pendingFile={pendingFile}
         onUploadClick={() => fileInputRef.current.click()}
         messagesEndRef={messagesEndRef}
+        extractedText={extractedText}
+        showPreview={showPreview}
+        setShowPreview={setShowPreview}
       />
 
       <DeleteModal
@@ -165,7 +199,7 @@ export default function Home() {
         className="hidden"
         ref={fileInputRef}
         onChange={handleFileUpload}
-        accept=".pdf"
+        accept=".pdf,.docx,.txt"
       />
     </div>
   );

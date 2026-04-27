@@ -6,6 +6,7 @@ export const fileService = {
     formData.append('file', file);
     return api.post("/upload", formData);
   },
+  getActiveDocument: () => api.get("/active-document"),
   delete: () => api.delete("/delete-file"),
 };
 

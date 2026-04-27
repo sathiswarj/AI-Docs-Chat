@@ -8,7 +8,9 @@ import {
   ShieldCheck,
   Upload,
   Send,
-  Zap
+  Zap,
+  Eye,
+  X
 } from 'lucide-react';
 
 export default function ChatWindow({
@@ -21,7 +23,10 @@ export default function ChatWindow({
   isProcessed,
   pendingFile,
   onUploadClick,
-  messagesEndRef
+  messagesEndRef,
+  extractedText,
+  showPreview,
+  setShowPreview
 }) {
   return (
     <main className="flex-1 flex flex-col relative mesh-gradient min-h-screen">
@@ -39,12 +44,37 @@ export default function ChatWindow({
             </div>
           )}
           {isProcessed && (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/5">
-              <ShieldCheck size={12} /> Verified
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowPreview(!showPreview)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${showPreview ? 'bg-primary text-white' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
+              >
+                <Eye size={12} /> {showPreview ? 'Close Preview' : 'View Content'}
+              </button>
+              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/5">
+                <ShieldCheck size={12} /> Verified
+              </div>
             </div>
           )}
         </div>
       </header>
+      
+      {/* Preview Panel */}
+      <div className={`absolute right-0 top-16 bottom-0 w-1/3 bg-black/90 backdrop-blur-2xl border-l border-white/10 z-30 transition-all duration-500 transform ${showPreview ? 'translate-x-0' : 'translate-x-full shadow-none'}`}>
+        <div className="h-full flex flex-col p-8">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-primary">Extracted Intelligence</h3>
+            <button onClick={() => setShowPreview(false)} className="text-zinc-500 hover:text-white transition-colors">
+              <X size={18} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto custom-scrollbar pr-4">
+            <pre className="text-[13px] text-zinc-400 font-mono whitespace-pre-wrap leading-relaxed">
+              {extractedText || "No content extracted."}
+            </pre>
+          </div>
+        </div>
+      </div>
 
       <div className="flex-1 overflow-y-auto p-10 space-y-10 scroll-smooth custom-scrollbar z-10">
         {messages.map((msg, i) => (
@@ -92,7 +122,7 @@ export default function ChatWindow({
                 <Upload size={32} className="text-white" />
               </div>
               <h2 className="text-3xl font-black tracking-tight text-white mb-3">Load Intelligence</h2>
-              <p className="text-zinc-500 text-base mb-10 leading-relaxed px-6">Select a PDF source to initialize the document analysis sequence.</p>
+              <p className="text-zinc-500 text-base mb-10 leading-relaxed px-6">Select a document source to initialize the document analysis sequence.</p>
               <button
                 onClick={onUploadClick}
                 className="px-10 py-4 bg-white text-black hover:bg-zinc-200 rounded-2xl transition-all text-xs font-black uppercase tracking-widest shadow-xl cursor-pointer"
