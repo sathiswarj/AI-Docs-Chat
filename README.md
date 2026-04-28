@@ -1,61 +1,185 @@
-# DocGS AI - Local Document Chat
+#  DocGS AI — Local RAG Document Chat Assistant
 
-DocGS AI is a premium, privacy-focused document analysis tool that allows users to upload PDFs and engage in conversations with local AI models via Ollama. No data leaves your machine.
+DocGS AI is a full-stack AI-powered application that enables users to chat with documents and general AI using a hybrid system powered by **local LLMs (Ollama)**.
 
-## Features
+It combines **Retrieval-Augmented Generation (RAG)** with **normal conversational AI**, ensuring both accuracy (from documents) and flexibility (general knowledge), while keeping all data **fully local and private**.
 
-- **100% Local AI**: Powered by Ollama—no API keys or cloud services required.
-- **Intelligent PDF Parsing**: Extracts text from PDFs efficiently using pdf-parse.
-- **Premium UI/UX**: Modern dark-mode interface with glassmorphism effects and smooth animations.
-- **Modular Architecture**: Clean MVC-style backend and component-based Next.js frontend.
-- **Smart Cleanup**: Automatic physical file deletion from the server upon analysis removal.
-- **Developer Friendly**: Configured with nodemon and ready for any Ollama-compatible model.
+---
 
-## Tech Stack
+##  Features
+
+### Hybrid AI Chat
+
+* **Normal Mode**: Ask general questions (like ChatGPT)
+* **Document Mode (RAG)**: Upload documents and get context-aware answers
+* Automatic fallback to general AI if answer is not found in document
+
+### Document Intelligence
+
+* Supports **PDF, DOCX, TXT**
+* Text extraction and semantic chunking
+* Fast retrieval using vector similarity
+
+###  Semantic Search
+
+* Uses **all-MiniLM-L6-v2 embeddings**
+* Retrieves most relevant chunks for accurate answers
+
+### 🏷 Source Attribution
+
+* Responses include:
+
+  * `Source: Document`
+  * `Source: General AI`
+
+### Multi-Conversation Support
+
+* ChatGPT-style sidebar
+* Manage multiple sessions
+
+### Local-First Privacy
+
+* No external APIs required
+* Runs entirely on your machine using Ollama
+* Documents never leave your system
+
+---
+
+## 🛠 Tech Stack
 
 ### Frontend
-- Framework: Next.js 15 (App Router)
-- Styling: Tailwind CSS 4
-- Icons: Lucide React
+
+* **Next.js 15**
+* React Hooks
+* CSS (Glassmorphism UI)
+* Lucide Icons
 
 ### Backend
-- Environment: Node.js & Express
-- AI Engine: Ollama (Local LLM)
-- Extraction: PDF-Parse
 
-## Getting Started
+* **Node.js + Express**
+* MongoDB
+* Axios (Ollama API)
+
+### AI Layer
+- LLM: Ollama (Mistral)
+- Embeddings: Hugging Face Transformers (via @xenova/transformers)
+- Model: all-MiniLM-L6-v2
+
+### File Processing
+
+* `pdf-parse`
+* `mammoth` (DOCX)
+
+---
+
+## ⚙️ How It Works
+
+### 🔄 Hybrid Flow
+
+#### Without Document
+
+User → Backend → Ollama → Response
+
+#### With Document (RAG)
+
+User → Embedding → Vector Search → Top Chunks
+→ Build Context → Ollama → Response
+
+---
+
+## Installation
 
 ### 1. Prerequisites
-- Node.js (v18+)
-- Ollama installed and running
-- A local model downloaded (e.g., llama3)
 
-### 2. Installation
+* Node.js (v18+)
+* MongoDB (local or Atlas)
+* Ollama installed
 
-**Clone the repository:**
-```bash
-git clone https://github.com/sathiswarj/AI-Docs-Chat.git
-cd AI-Docs-Chat
+Install Ollama:
+https://ollama.com
+
+ 
+
+### 2. Environment Setup
+
+Create `.env` in `server`:
+
+```env
+PORT=5000
+OLLAMA_URL=http://localhost:11434/api/generate
+OLLAMA_MODEL=mistral
 ```
 
-**Setup Backend:**
+---
+
+### 3. Run Project
+
+#### Backend
+
 ```bash
 cd server
 npm install
 npm run dev
 ```
 
-**Setup Frontend:**
+#### Frontend
+
 ```bash
-cd ../client
+cd client
 npm install
 npm run dev
 ```
 
-### 3. Usage
-1. Open http://localhost:3000 in your browser.
-2. Select a PDF document via the upload section.
-3. Click Send to process the file and start chatting with your local AI!
+---
+
+## 📖 Usage
+
+1. Open `http://localhost:3000`
+2. Start chatting (general AI)
+3. Upload a document
+4. Ask questions about the document
+5. AI responds with:
+
+   * Document-based answers
+   * OR general AI fallback
+
+---
+
+## ey Concepts Implemented
+
+* Retrieval-Augmented Generation (RAG)
+* Semantic Search (Embeddings + Vector similarity)
+* Prompt Engineering
+* Hybrid AI Architecture (RAG + General LLM)
+* Local LLM Integration (Ollama)
+
+---
+
+## 🛡 Security & Privacy
+
+* Fully local AI processing
+* No external API calls
+* No data leakage
+* Ideal for sensitive documents
+
+---
+
+## Future Improvements
+
+* Streaming responses
+* Authentication (JWT)
+* File size optimization
+* Advanced chunk ranking
+* UI enhancements
+
+---
 
 ## License
-This project is for educational purposes as part of the DocGS AI development journey.
+
+ISC License
+
+---
+
+## Final Note
+
+This project demonstrates practical implementation of modern AI systems using **RAG + local LLMs**, making it highly relevant for real-world AI applications.

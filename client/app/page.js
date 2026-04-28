@@ -11,15 +11,16 @@ import { useRouter } from 'next/navigation';
 import api from './services/api.service';
 
 export default function Home() {
-  const [messages, setMessages] = useState([
-    { role: 'ai', content: 'Hello! Please upload a document (PDF, Word, or Text) so I can help you analyze it.' }
-  ]);
+  const [messages, setMessages] = useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [activeConversationId, setActiveConversationId] = useState(null);
   const [input, setInput] = useState('');
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isThinking, setIsThinking] = useState(false);
   const [isProcessed, setIsProcessed] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState(null);
   const [pendingFile, setPendingFile] = useState(null);
   const [extractedText, setExtractedText] = useState("");
   const [showPreview, setShowPreview] = useState(false);
@@ -45,30 +46,53 @@ export default function Home() {
     scrollToBottom();
   }, [messages, isThinking]);
 
+  // Fetch all conversations
+  const fetchConversations = async () => {
+    try {
+      const convs = await chatService.getConversations();
+      setConversations(convs);
+    } catch (error) {
+      console.error('Failed to fetch conversations', error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      if (user) {
+    if (user) {
+      fetchConversations();
+    }
+  }, [user]);
+
+  // Fetch data for active conversation
+  useEffect(() => {
+    const fetchConversationData = async () => {
+      if (activeConversationId) {
         try {
-          // Fetch Active Document
-          const docRes = await fileService.getActiveDocument();
+          const history = await chatService.getHistory(activeConversationId);
+          setMessages(history.map(m => ({ role: m.role, content: m.content })));
+          
+          // Check for active document in this conversation
+          const docRes = await fileService.getActiveDocument(activeConversationId);
           if (docRes.active) {
             setFile({ name: docRes.filename });
             setExtractedText(docRes.text);
             setIsProcessed(true);
-          }
-
-          // Fetch Chat History
-          const history = await chatService.getHistory();
-          if (history && history.length > 0) {
-            setMessages(history.map(m => ({ role: m.role, content: m.content })));
+          } else {
+            setFile(null);
+            setExtractedText("");
+            setIsProcessed(false);
           }
         } catch (error) {
-          console.error('Failed to fetch initial data', error);
+          console.error('Failed to fetch conversation history', error);
         }
+      } else {
+        setMessages([{ role: 'ai', content: 'Hello! I am your AI research assistant. You can chat with me directly or upload a document using the icon on the left to start a focused analysis.' }]);
+        setFile(null);
+        setExtractedText("");
+        setIsProcessed(false);
       }
     };
-    fetchData();
-  }, [user]);
+    fetchConversationData();
+  }, [activeConversationId]);
 
   if (loading || !user) {
     return (
@@ -83,16 +107,21 @@ export default function Home() {
     if (!selectedFile) return;
     setPendingFile(selectedFile);
     setInput(selectedFile.name);
-    setIsProcessed(false);
   };
 
   const uploadFile = async (selectedFile) => {
     setIsUploading(true);
     try {
-      const response = await fileService.upload(selectedFile);
+      const response = await fileService.upload(selectedFile, activeConversationId);
       setIsProcessed(true);
       setFile(selectedFile);
       setExtractedText(response.text || "");
+      
+      if (!activeConversationId && response.conversationId) {
+        setActiveConversationId(response.conversationId);
+        fetchConversations();
+      }
+
       setMessages(prev => [...prev, {
         role: 'ai',
         content: `✨ Document "${selectedFile.name}" is now part of my intelligence nexus! I've analyzed it and split it into several sections for better recall. What would you like to know about it?`
@@ -124,8 +153,7 @@ export default function Home() {
         setInput('');
         return;
       }
-      setInput('');
-      return;
+      currentPrompt = input;
     }
 
     const userMessage = currentPrompt;
@@ -135,9 +163,13 @@ export default function Home() {
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await api.post('/chat', { prompt: userMessage }, { 
-        signal: abortControllerRef.current.signal 
-      });
+      const response = await chatService.sendMessage(userMessage, activeConversationId);
+      
+      if (!activeConversationId && response.conversationId) {
+        setActiveConversationId(response.conversationId);
+        fetchConversations();
+      }
+      
       setMessages(prev => [...prev, { role: 'ai', content: response.response }]);
     } catch (error) {
       if (error.name === 'AbortError') {
@@ -161,21 +193,28 @@ export default function Home() {
     }
   };
 
-  const confirmDelete = async () => {
-    try {
-      await fileService.delete();
-    } catch (error) {
-      console.error('Failed to delete file from server', error);
-    }
-    setFile(null);
-    setPendingFile(null);
-    setExtractedText("");
-    setShowPreview(false);
-    setIsProcessed(false);
+  const handleNewChat = () => {
+    setActiveConversationId(null);
+    setMessages([{ role: 'ai', content: 'Hello! I am your AI research assistant. You can chat with me directly or upload a document using the icon on the left to start a focused analysis.' }]);
     setInput('');
-    setMessages([{ role: 'ai', content: 'Hello! Please upload a document (PDF, Word, or Text) so I can help you analyze it.' }]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setFile(null);
+    setIsProcessed(false);
+    setPendingFile(null);
+  };
+
+  const handleDeleteConversation = async () => {
+    if (!conversationToDelete) return;
+    try {
+      await chatService.deleteConversation(conversationToDelete);
+      if (activeConversationId === conversationToDelete) {
+        handleNewChat();
+      }
+      fetchConversations();
+    } catch (error) {
+      console.error('Failed to delete conversation', error);
+    }
     setShowDeleteModal(false);
+    setConversationToDelete(null);
   };
 
   return (
@@ -184,7 +223,14 @@ export default function Home() {
         file={file}
         pendingFile={pendingFile}
         isProcessed={isProcessed}
-        onDelete={() => setShowDeleteModal(true)}
+        onNewChat={handleNewChat}
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        onSelectConversation={(id) => setActiveConversationId(id)}
+        onDeleteConversation={(id) => {
+          setConversationToDelete(id);
+          setShowDeleteModal(true);
+        }}
       />
 
       <ChatWindow
@@ -206,8 +252,11 @@ export default function Home() {
 
       <DeleteModal
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
-        onConfirm={confirmDelete}
+        onClose={() => {
+          setShowDeleteModal(false);
+          setConversationToDelete(null);
+        }}
+        onConfirm={handleDeleteConversation}
       />
 
       <input

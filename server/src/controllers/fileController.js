@@ -4,13 +4,26 @@ const chunkingService = require('../services/chunkingService');
 const embeddingService = require('../services/embeddingService');
 const Document = require('../models/Document');
 
+const Conversation = require('../models/Conversation');
+
 const uploadFile = async (req, res) => {
   try {
+    const { conversationId } = req.body;
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
 
-    await Document.findOneAndDelete({ user: req.user._id });
+    let conversation;
+    if (conversationId) {
+      conversation = await Conversation.findById(conversationId);
+    }
+
+    if (!conversation) {
+      conversation = await Conversation.create({
+        user: req.user._id,
+        title: req.file.originalname
+      });
+    }
 
     const text = await docService.extractText(req.file.path);
     const chunkTexts = chunkingService.splitIntoChunks(text);
@@ -25,6 +38,7 @@ const uploadFile = async (req, res) => {
 
     const document = await Document.create({
       user: req.user._id,
+      conversation: conversation._id,
       filename: req.file.filename,
       originalName: req.file.originalname,
       filePath: req.file.path,
@@ -37,7 +51,9 @@ const uploadFile = async (req, res) => {
       charCount: text.length,
       chunkCount: chunks.length,
       text: text,
-      filename: req.file.originalname
+      filename: req.file.originalname,
+      conversationId: conversation._id,
+      conversationTitle: conversation.title
     });
   } catch (error) {
     console.error('Upload & Processing Error:', error);
@@ -47,7 +63,9 @@ const uploadFile = async (req, res) => {
 
 const getActiveDocument = async (req, res) => {
   try {
-    const document = await Document.findOne({ user: req.user._id });
+    const { conversationId } = req.query;
+    const filter = conversationId ? { conversation: conversationId } : { user: req.user._id };
+    const document = await Document.findOne(filter).sort({ createdAt: -1 });
     if (!document) {
       return res.json({ active: false });
     }

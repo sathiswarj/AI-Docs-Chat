@@ -12,7 +12,16 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-export default function Sidebar({ file, pendingFile, isProcessed, onDelete }) {
+export default function Sidebar({ 
+  file, 
+  pendingFile, 
+  isProcessed, 
+  onNewChat, 
+  conversations, 
+  activeConversationId, 
+  onSelectConversation, 
+  onDeleteConversation 
+}) {
   const { user, logout } = useAuth();
 
   return (
@@ -29,14 +38,37 @@ export default function Sidebar({ file, pendingFile, isProcessed, onDelete }) {
       <nav className="flex-1 px-4 py-4 space-y-8 overflow-y-auto custom-scrollbar">
         <div className="space-y-2">
           <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] px-4 mb-3">System Hub</p>
-          <div className="flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-white/5 rounded-2xl transition-all group cursor-pointer border border-transparent hover:border-white/5">
-            <LayoutDashboard size={18} className="group-hover:text-primary transition-colors" />
-            <span className="text-[13px] font-bold">Workspace</span>
-            <ChevronRight size={14} className="ml-auto opacity-0 group-hover:opacity-100" />
-          </div>
-          <div className="flex items-center gap-3 px-4 py-3.5 text-white bg-white/5 rounded-2xl transition-all border border-white/5 shadow-inner">
-            <FileText size={18} className="text-primary" />
-            <span className="text-[13px] font-bold">Intel Analysis</span>
+          <button 
+            onClick={onNewChat}
+            className="w-full flex items-center gap-3 px-4 py-3.5 text-zinc-400 hover:text-white hover:bg-primary/10 rounded-2xl transition-all group cursor-pointer border border-dashed border-white/10 hover:border-primary/40 mb-2"
+          >
+            <div className="w-6 h-6 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-all">
+              <Command size={14} className="text-primary" />
+            </div>
+            <span className="text-[13px] font-bold">New Chat</span>
+          </button>
+          
+          <div className="space-y-1">
+            <p className="text-[10px] font-black text-zinc-600 uppercase tracking-[0.3em] px-4 mb-3 mt-6">Recent Intel</p>
+            {conversations.map((conv) => (
+              <div 
+                key={conv._id}
+                onClick={() => onSelectConversation(conv._id)}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all group cursor-pointer border ${activeConversationId === conv._id ? 'bg-white/10 border-white/10 text-white' : 'text-zinc-500 hover:text-zinc-300 border-transparent hover:bg-white/5'}`}
+              >
+                <div className={`w-2 h-2 rounded-full ${activeConversationId === conv._id ? 'bg-primary animate-pulse' : 'bg-zinc-800'}`} />
+                <span className="text-[12px] font-bold truncate flex-1">{conv.title}</span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeleteConversation(conv._id);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-500/10 hover:text-red-500 rounded-lg transition-all"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -53,12 +85,6 @@ export default function Sidebar({ file, pendingFile, isProcessed, onDelete }) {
                   <p className="text-[9px] text-zinc-600 font-black uppercase tracking-widest">{isProcessed ? 'Analysis Live' : 'Processing...'}</p>
                 </div>
               </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(); }}
-                className="w-full py-2.5 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-[0.2em] rounded-xl transition-all active:scale-95 shadow-lg shadow-red-500/5"
-              >
-                Clear Cache
-              </button>
             </div>
           ) : (
             <div className="mx-2 p-8 border border-dashed border-white/5 rounded-[2.5rem] text-center bg-zinc-900/10">

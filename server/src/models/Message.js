@@ -6,6 +6,11 @@ const MessageSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  conversation: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Conversation',
+    required: true
+  },
   role: {
     type: String,
     enum: ['user', 'ai'],

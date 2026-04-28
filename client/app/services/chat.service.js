@@ -1,8 +1,10 @@
 import api from "./api.service";
 
 export const chatService = {
-  getHistory: () => api.get("/chat/history"),
-  sendMessage: (prompt) => api.post("/chat", { prompt }),
+  getConversations: () => api.get("/conversations"),
+  getHistory: (conversationId) => api.get(`/chat/history/${conversationId}`),
+  sendMessage: (prompt, conversationId) => api.post("/chat", { prompt, conversationId }),
+  deleteConversation: (id) => api.delete(`/conversation/${id}`),
 };
 
 export default chatService;

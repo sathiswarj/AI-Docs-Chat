@@ -1,50 +1,75 @@
-const { pipeline } = require('@xenova/transformers');
-
-let generator;
+const axios = require('axios');
 
 /**
- * Loads a small, free, local LLM.
- * Model: LaMini-Flan-T5-78M (optimized for local JS execution)
- */
-const getGenerator = async () => {
-  if (!generator) {
-    console.log('Loading local AI brain (this may take a minute on first run)...');
-    // Using a Text2Text generation pipeline
-    generator = await pipeline('text2text-generation', 'Xenova/LaMini-Flan-T5-77M');
-    console.log('Local AI brain loaded. Ready to chat!');
-  }
-  return generator;
-};
-
-/**
- * Generates an answer based on document context and user question.
- * @param {string} question 
- * @param {string} context 
+ * Generates an answer using Ollama local AI.
+ * Handles both normal chat and RAG (Document-based chat).
+ * 
+ * @param {string} question - The user's query
+ * @param {string} context - Retrieved chunks from the document (if any)
  * @returns {Promise<string>}
  */
 const generateAnswer = async (question, context) => {
   try {
-    const model = await getGenerator();
-    console.log('Using prompt:', context ? 'With context' : 'No context');
-    
-    // Constructing a prompt for the T5 model
-    const prompt = context 
-      ? `Context: ${context}\nQuestion: ${question}\nAnswer:`
-      : `Question: ${question}\nAnswer:`;
+    const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434/api/generate';
+    const MODEL = process.env.OLLAMA_MODEL || 'mistral';
 
-    const output = await model(prompt, {
-      max_new_tokens: 150,
-      temperature: 0.7,
-      repetition_penalty: 1.2
+    let systemPrompt = "You are a helpful AI research assistant.";
+    let mainPrompt = question;
+
+    if (context) {
+      systemPrompt = `
+You are an AI assistant.
+First check the provided document context.
+
+If the answer is found in the context:
+- Answer using the document
+- Mention: "Source: Document"
+
+If the answer is NOT found:
+- Answer using your general knowledge
+- Mention: "Source: General AI"
+
+Do not falsely claim the answer is from the document.
+`.trim();
+
+      mainPrompt = `
+Document Context:
+${context}
+
+User Question:
+${question}
+`.trim();
+    }
+
+    console.log(`[Ollama] Mode: ${context ? 'RAG' : 'Normal'} | Model: ${MODEL}`);
+    if (context) console.log(`[Ollama] Context: ${context.length} chars`);
+
+    const response = await axios.post(OLLAMA_URL, {
+      model: MODEL,
+      system: systemPrompt,
+      prompt: mainPrompt,
+      stream: false,
+      options: {
+        temperature: 0.7,
+        num_predict: 800,
+      }
     });
 
-    return output[0].generated_text;
+    const aiAnswer = response.data.response;
+    console.log(`[Ollama] Response: ${aiAnswer.substring(0, 50).replace(/\n/g, ' ')}...`);
+    return aiAnswer;
   } catch (error) {
-    console.error('Local AI Error Details:', error);
-    return `I'm sorry, my local brain encountered an error: ${error.message}`;
+    console.error('Ollama Integration Error:', error.message);
+
+    if (error.code === 'ECONNREFUSED') {
+      return "Error: Ollama is not running. Please start Ollama on your local machine.";
+    }
+
+    return `I'm sorry, I encountered an error while connecting to my local brain: ${error.message}`;
   }
 };
 
 module.exports = {
   generateAnswer
 };
+

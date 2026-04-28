@@ -1,12 +1,13 @@
 import api from "./api.service";
 
 export const fileService = {
-  upload: (file) => {
+  upload: (file, conversationId) => {
     const formData = new FormData();
     formData.append('file', file);
+    if (conversationId) formData.append('conversationId', conversationId);
     return api.post("/upload", formData);
   },
-  getActiveDocument: () => api.get("/active-document"),
+  getActiveDocument: (conversationId) => api.get("/active-document", { params: { conversationId } }),
   delete: () => api.delete("/delete-file"),
 };
 

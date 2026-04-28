@@ -5,7 +5,7 @@
  * @param {number} maxWords Maximum words per chunk (default 800).
  * @returns {string[]} Array of text chunks.
  */
-const splitIntoChunks = (text, minWords = 500, maxWords = 800) => {
+const splitIntoChunks = (text, minWords = 100, maxWords = 800) => {
   if (!text) return [];
 
   const words = text.split(/\s+/);

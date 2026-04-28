@@ -33,7 +33,7 @@ export default function ChatWindow({
   return (
     <main className="flex-1 flex flex-col relative mesh-gradient min-h-screen">
       <div className="absolute inset-0 bg-black/40 pointer-events-none" />
-      
+
       <header className="h-16 border-b border-white/5 flex items-center justify-between px-10 z-20 sticky top-0 bg-black/20 backdrop-blur-3xl">
         <div className="flex items-center gap-4">
           <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-zinc-400">Intelligence Nexus</span>
@@ -45,22 +45,10 @@ export default function ChatWindow({
               <Loader2 size={12} className="animate-spin" /> Stream Active
             </div>
           )}
-          {isProcessed && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowPreview(!showPreview)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest transition-all ${showPreview ? 'bg-primary text-white' : 'bg-white/5 text-zinc-400 hover:bg-white/10'}`}
-              >
-                <Eye size={12} /> {showPreview ? 'Close Preview' : 'View Content'}
-              </button>
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-4 py-2 rounded-full flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest shadow-lg shadow-emerald-500/5">
-                <ShieldCheck size={12} /> Verified
-              </div>
-            </div>
-          )}
+
         </div>
       </header>
-      
+
       {/* Preview Panel */}
       <div className={`absolute right-0 top-16 bottom-0 w-1/3 bg-black/90 backdrop-blur-2xl border-l border-white/10 z-30 transition-all duration-500 transform ${showPreview ? 'translate-x-0' : 'translate-x-full shadow-none'}`}>
         <div className="h-full flex flex-col p-8">
@@ -123,50 +111,34 @@ export default function ChatWindow({
       </div>
 
       <div className="p-10 pt-0 z-20">
-        {!isProcessed && !isUploading && !pendingFile && messages.length === 1 && (
-          <div className="max-w-lg mx-auto mb-12 text-center">
-            <div className="bg-zinc-900/40 border border-white/10 p-12 rounded-[3rem] backdrop-blur-3xl shadow-2xl">
-              <div className="w-20 h-20 premium-gradient rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-primary/30">
-                <Upload size={32} className="text-white" />
-              </div>
-              <h2 className="text-3xl font-black tracking-tight text-white mb-3">Load Intelligence</h2>
-              <p className="text-zinc-500 text-base mb-10 leading-relaxed px-6">Select a document source to initialize the document analysis sequence.</p>
-              <button
-                onClick={onUploadClick}
-                className="px-10 py-4 bg-white text-black hover:bg-zinc-200 rounded-2xl transition-all text-xs font-black uppercase tracking-widest shadow-xl cursor-pointer"
-              >
-                Initialize File
-              </button>
-            </div>
-          </div>
-        )}
+
 
         <div className="max-w-4xl mx-auto relative">
           <form
             onSubmit={sendMessage}
-            className={`relative group transition-all duration-500 ${(!isProcessed && !pendingFile) ? 'opacity-30 grayscale' : 'opacity-100'}`}
+            className="relative group transition-all duration-500 opacity-100"
           >
-            <div className="relative">
+            <div className="relative flex items-center">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={isProcessed ? "Ask a question..." : "Awaiting document..."}
-                className="w-full bg-zinc-900 border border-white/5 focus:border-primary/40 rounded-3xl py-5 pl-8 pr-40 outline-none transition-all placeholder:text-zinc-700 text-[15px] text-zinc-100 shadow-2xl backdrop-blur-2xl"
+                placeholder="Ask anything or upload a document..."
+                className="w-full bg-zinc-900 border border-white/5 focus:border-primary/40 rounded-3xl py-5 pl-16 pr-20 outline-none transition-all placeholder:text-zinc-700 text-[15px] text-zinc-100 shadow-2xl backdrop-blur-2xl"
               />
+              <button
+                type="button"
+                onClick={onUploadClick}
+                className="absolute left-3 z-30 w-10 h-10 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-2xl flex items-center justify-center transition-all border border-white/10 hover:border-primary/40 shadow-lg cursor-pointer"
+                title="Upload Document"
+              >
+                <Upload size={18} />
+              </button>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-2">
-                {isProcessed && !input && (
-                  <button
-                    type="button"
-                    onClick={() => setInput("Summarize this document for me")}
-                    className="h-10 px-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-white rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all border border-white/5"
-                  >
-                    Summarize
-                  </button>
-                )}
+
                 <button
                   type="submit"
-                  disabled={!input.trim() || (!isProcessed && !pendingFile) || isThinking || isUploading}
+                  disabled={!input.trim() || isThinking || isUploading}
                   className="w-12 h-12 bg-white disabled:bg-zinc-800 text-black disabled:text-zinc-600 rounded-2xl flex items-center justify-center transition-all hover:bg-primary hover:text-white shadow-xl cursor-pointer"
                 >
                   <Send size={22} />
