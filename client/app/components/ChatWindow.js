@@ -86,7 +86,7 @@ export default function ChatWindow({
               {msg.role === 'ai' ? <Zap size={20} className="text-black" /> : <User size={20} className="text-white" />}
             </div>
             <div className={`flex flex-col gap-2 ${msg.role === 'user' ? 'items-end' : ''}`}>
-              <div className={`p-5 rounded-3xl text-[15px] leading-relaxed shadow-sm ${msg.role === 'ai' ? 'bg-slate-50 border border-slate-200 text-slate-800 rounded-tl-none' : 'bg-black text-white font-medium rounded-tr-none'}`}>
+              <div className={`p-5 rounded-3xl text-[15px] leading-relaxed shadow-sm whitespace-pre-wrap ${msg.role === 'ai' ? 'bg-slate-50 border border-slate-200 text-slate-800 rounded-tl-none' : 'bg-black text-white font-medium rounded-tr-none'}`}>
                 {msg.content}
               </div>
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] px-2">

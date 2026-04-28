@@ -13,12 +13,13 @@ const generateAnswer = async (question, context) => {
     const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434/api/generate';
     const MODEL = process.env.OLLAMA_MODEL || 'mistral';
 
-    let systemPrompt = "You are a helpful AI research assistant.";
+    let systemPrompt = "You are a helpful AI research assistant. Format your response into clear, distinct paragraphs. Each paragraph should be approximately 4 lines long. Use double line breaks between paragraphs.";
     let mainPrompt = question;
 
     if (context) {
       systemPrompt = `
-You are an AI assistant.
+You are an AI assistant. Format your response into clear, distinct paragraphs. Each paragraph should be approximately 4 lines long. Use double line breaks between paragraphs.
+
 First check the provided document context.
 
 If the answer is found in the context:
