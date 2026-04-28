@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
-  --foreground: #ffffff;
-  --primary: #0070f3;
-  --accent: #7928ca;
-  --sidebar: #0a0a0a;
-  --card: #111111;
-  --border: rgba(255, 255, 255, 0.1);
-  --glass: rgba(0, 0, 0, 0.7);
+  --background: #ffffff;
+  --foreground: #000000;
+  --primary: #000000;
+  --accent: #64748b;
+  --sidebar: #f8fafc;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --glass: rgba(255, 255, 255, 0.8);
 }
 
 @theme inline {
@@ -23,7 +23,7 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-jakarta), system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -36,13 +36,14 @@ body {
 }
 
 .premium-gradient {
-  background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+  background: #000000;
 }
 
 .text-gradient {
-  background: linear-gradient(to right, #fff, #888);
+  background: linear-gradient(to right, #000, #666);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  font-weight: 800;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -54,12 +55,12 @@ body {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 20px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 @keyframes pulse-soft {
@@ -72,10 +73,5 @@ body {
 }
 
 .mesh-gradient {
-  background-color: hsla(0, 0%, 0%, 1);
-  background-image: 
-    radial-gradient(at 0% 0%, hsla(210, 100%, 10%, 1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(280, 100%, 10%, 1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(210, 100%, 10%, 1) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, hsla(280, 100%, 10%, 1) 0px, transparent 50%);
+  background-color: #ffffff;
 }

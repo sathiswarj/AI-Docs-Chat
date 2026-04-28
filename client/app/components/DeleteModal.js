@@ -9,43 +9,41 @@ export default function DeleteModal({ isOpen, onClose, onConfirm }) {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
       <div
-        className="absolute inset-0 bg-black/90 backdrop-blur-2xl transition-opacity duration-700"
+        className="absolute inset-0 bg-white/60 backdrop-blur-md transition-opacity duration-700"
         onClick={onClose}
       ></div>
-      <div className="bg-zinc-950 w-full max-w-lg rounded-[3.5rem] p-12 relative z-10 animate-in zoom-in duration-500 shadow-[0_0_100px_rgba(0,0,0,1)] border border-white/5 overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50" />
-        
+      <div className="bg-white w-full max-w-lg rounded-[2.5rem] p-10 relative z-10 animate-in zoom-in duration-300 shadow-2xl border border-slate-200 overflow-hidden">
         <button
           onClick={onClose}
-          className="absolute top-8 right-8 p-3 hover:bg-white/5 rounded-2xl text-zinc-600 hover:text-white transition-all border border-transparent hover:border-white/5"
+          className="absolute top-6 right-6 p-2 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-black transition-all"
         >
-          <X size={24} />
+          <X size={20} />
         </button>
 
-        <div className="flex flex-col items-center text-center gap-8">
-          <div className="w-24 h-24 bg-red-500/10 rounded-[2.5rem] flex items-center justify-center border border-red-500/20 shadow-[0_0_40px_rgba(239,68,68,0.1)]">
-            <AlertTriangle className="text-red-500" size={48} />
+        <div className="flex flex-col items-center text-center gap-6">
+          <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center border border-slate-200 shadow-sm">
+            <AlertTriangle className="text-black" size={32} />
           </div>
           
-          <div className="space-y-3">
-            <h3 className="text-3xl font-black text-white tracking-tighter">Terminate Session?</h3>
-            <p className="text-zinc-500 text-sm leading-relaxed font-medium px-8">
-              This action will irreversibly wipe all document metadata and encrypted message history from the active memory core.
+          <div className="space-y-2">
+            <h3 className="text-2xl font-bold text-black tracking-tight">Delete History?</h3>
+            <p className="text-slate-500 text-sm leading-relaxed font-medium px-4">
+              This action will permanently delete all document data and chat history. This cannot be undone.
             </p>
           </div>
 
-          <div className="flex flex-col gap-4 w-full mt-4">
+          <div className="flex flex-col gap-3 w-full mt-2">
             <button
               onClick={onConfirm}
-              className="w-full py-5 bg-red-600 hover:bg-red-500 text-white rounded-3xl text-sm font-black uppercase tracking-widest transition-all shadow-[0_0_40px_rgba(220,38,38,0.2)] active:scale-95"
+              className="w-full py-4 bg-black hover:bg-slate-800 text-white rounded-2xl text-xs font-bold uppercase tracking-widest transition-all shadow-lg active:scale-95"
             >
-              Confirm Termination
+              Confirm Delete
             </button>
             <button
               onClick={onClose}
-              className="w-full py-5 bg-white/5 hover:bg-white/10 text-zinc-500 hover:text-white rounded-3xl text-sm font-black uppercase tracking-widest transition-all border border-white/5"
+              className="w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl text-xs font-bold uppercase tracking-widest transition-all"
             >
-              Cancel Operation
+              Keep Everything
             </button>
           </div>
         </div>

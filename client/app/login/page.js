@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
-import { Mail, Lock, Loader2 } from 'lucide-react';
+import { Mail, Lock, Loader2, Command } from 'lucide-react';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -32,36 +32,38 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f172a] p-4 relative overflow-hidden">
-      {/* Background Orbs */}
-      <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-600/20 rounded-full blur-[120px]" />
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
+      <div className="w-full max-w-md">
+        <div className="flex justify-center mb-8">
+          <div className="w-12 h-12 bg-black rounded-2xl flex items-center justify-center shadow-lg">
+            <Command size={24} className="text-white" />
+          </div>
+        </div>
 
-      <div className="w-full max-w-md z-10">
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white border border-slate-300 rounded-[2.5rem] p-10 shadow-xl shadow-slate-100">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Welcome Back</h1>
-            <p className="text-slate-400">Log in to your account to continue</p>
+            <h1 className="text-2xl font-bold text-black mb-2">Welcome back</h1>
+            <p className="text-slate-500 text-sm">Enter your credentials to access your analysis hub</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3 rounded-lg text-sm">
+              <div className="bg-red-50 border border-red-100 text-red-600 p-3 rounded-xl text-xs font-medium text-center">
                 {error}
               </div>
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300 ml-1">Email Address</label>
+              <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="email"
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="name@company.com"
-                  className="w-full bg-slate-900/50 border border-slate-700 text-white pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 text-black pl-11 pr-4 py-3.5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-sm"
                   required
                 />
               </div>
@@ -69,20 +71,20 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="text-sm font-medium text-slate-300">Password</label>
-                <Link href="#" className="text-xs text-blue-400 hover:text-blue-300">
-                  Forgot password?
+                <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Password</label>
+                <Link href="#" className="text-[11px] font-bold text-slate-900 hover:underline">
+                  Forgot?
                 </Link>
               </div>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <input
                   type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="••••••••"
-                  className="w-full bg-slate-900/50 border border-slate-700 text-white pl-10 pr-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 text-black pl-11 pr-4 py-3.5 rounded-2xl focus:outline-none focus:ring-4 focus:ring-slate-100 focus:border-slate-300 transition-all text-sm"
                   required
                 />
               </div>
@@ -91,17 +93,17 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-3 rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full bg-black hover:bg-slate-800 text-white font-bold py-4 rounded-2xl shadow-lg transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs uppercase tracking-widest"
             >
-              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Log In'}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Sign In'}
             </button>
           </form>
 
           <div className="mt-8 text-center">
-            <p className="text-slate-400 text-sm">
-              Don't have an account?{' '}
-              <Link href="/signup" className="text-blue-400 hover:text-blue-300 font-medium">
-                Sign up
+            <p className="text-slate-500 text-xs">
+              New here?{' '}
+              <Link href="/signup" className="text-black font-bold hover:underline">
+                Create an account
               </Link>
             </p>
           </div>

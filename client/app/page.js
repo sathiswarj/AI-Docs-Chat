@@ -96,8 +96,8 @@ export default function Home() {
 
   if (loading || !user) {
     return (
-      <div className="h-screen flex items-center justify-center bg-black text-white">
-        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(0,112,243,0.3)]"></div>
+      <div className="h-screen flex items-center justify-center bg-white text-black">
+        <div className="w-12 h-12 border-4 border-black border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -218,7 +218,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen bg-black text-white overflow-hidden">
+    <div className="flex h-screen bg-white text-black overflow-hidden">
       <Sidebar
         file={file}
         pendingFile={pendingFile}
