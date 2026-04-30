@@ -1,4 +1,4 @@
-# 🚀 DocGS AI — Local RAG Document Chat Assistant
+# DocGS AI — Local RAG Document Chat Assistant
 
 DocGS AI is a full-stack AI-powered application that enables users to chat with documents and general AI using a hybrid system powered by local LLMs (Ollama).
 
@@ -6,39 +6,39 @@ It combines **Retrieval-Augmented Generation (RAG)** with conversational AI to p
 
 ---
 
-## ✨ Features
+##  Features
 
-### 🧠 Hybrid AI Chat
+### Hybrid AI Chat
 - **Normal Mode**: Ask general questions (like ChatGPT)
 - **Document Mode (RAG)**: Upload documents and get context-aware answers
 - Automatic fallback to general AI when the answer is not found in the document
 
-### 📄 Document Intelligence
+### Document Intelligence
 - Supports **PDF, DOCX, TXT**
 - Text extraction and semantic chunking
 - Fast retrieval using vector similarity
 
-### 🔍 Semantic Search
+### Semantic Search
 - Uses **Hugging Face embeddings (`all-MiniLM-L6-v2`)**
 - Retrieves the most relevant chunks for accurate responses
 
-### 🏷 Source Attribution
+### Source Attribution
 - Responses include:
   - `Source: Document`
   - `Source: General AI`
 
-### 🧵 Multi-Conversation Support
+### Multi-Conversation Support
 - ChatGPT-style sidebar
 - Manage multiple chat sessions
 
-### 🔒 Local-First Privacy
+### Local-First Privacy
 - No external APIs required
 - Runs entirely on your machine using Ollama
 - Documents never leave your system
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 ### Frontend
 - **Next.js 15**
@@ -51,11 +51,11 @@ It combines **Retrieval-Augmented Generation (RAG)** with conversational AI to p
 - MongoDB
 - Axios (Ollama API)
 
-### 🤖 AI Layer
+### AI Layer
 - **LLM**: Ollama (Mistral)
 - **Embeddings**: Hugging Face Transformers (`all-MiniLM-L6-v2`)
 
-### 📂 File Processing
+### File Processing
 - `pdf-parse`
 - `mammoth` (DOCX)
 
@@ -63,7 +63,7 @@ It combines **Retrieval-Augmented Generation (RAG)** with conversational AI to p
 
 ## ⚙️ How It Works
 
-### 🔄 Hybrid Flow
+### Hybrid Flow
 
 #### Without Document
 User → Backend → Ollama → Response
@@ -74,7 +74,7 @@ User → Embedding → Vector Search → Top Chunks
 
 ---
 
-## 🚀 Installation
+##  Installation
 
 ### 1. Prerequisites
 - Node.js (v18+)
