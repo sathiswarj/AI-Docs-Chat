@@ -8,29 +8,27 @@ const axios = require('axios');
  * @param {string} context - Retrieved chunks from the document (if any)
  * @returns {Promise<string>}
  */
-const generateAnswer = async (question, context) => {
+const generateAnswer = async (question, context, signal) => {
   try {
     const OLLAMA_URL = process.env.OLLAMA_URL || 'http://localhost:11434/api/generate';
     const MODEL = process.env.OLLAMA_MODEL || 'mistral';
 
-    let systemPrompt = "You are a helpful AI research assistant. Format your response into clear, distinct paragraphs. Each paragraph should be approximately 4 lines long. Use double line breaks between paragraphs.";
+    let systemPrompt = "You are an AI assistant that gives clear, structured, and accurate answers. Always understand the question before answering. Use simple and clear language. Structure answers with bolded headings (e.g., **Heading**) and bullet points. Do not add unnecessary information. Keep answers professional and easy to read.";
     let mainPrompt = question;
 
     if (context) {
       systemPrompt = `
-You are an AI assistant. Format your response into clear, distinct paragraphs. Each paragraph should be approximately 4 lines long. Use double line breaks between paragraphs.
+You are an AI assistant that gives clear, structured, and accurate answers based on document context. 
+
+Rules:
+- Use simple and clear language.
+- Structure answers with bolded headings (e.g., **Heading**) and bullet points.
+- Do not add unnecessary information.
+- ONLY use the provided context for answers.
+- If the answer is not in the context, say "I don't know based on the document".
+- Keep answers professional and easy to read.
 
 First check the provided document context.
-
-If the answer is found in the context:
-- Answer using the document
-- Mention: "Source: Document"
-
-If the answer is NOT found:
-- Answer using your general knowledge
-- Mention: "Source: General AI"
-
-Do not falsely claim the answer is from the document.
 `.trim();
 
       mainPrompt = `
@@ -53,7 +51,8 @@ ${question}
       options: {
         temperature: 0.7,
         num_predict: 800,
-      }
+      },
+      signal: signal
     });
 
     const aiAnswer = response.data.response;

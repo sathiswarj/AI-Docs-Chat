@@ -73,8 +73,15 @@ const chat = async (req, res) => {
       context = topChunks.map(c => c.text).join("\n\n");
     }
 
+    // Setup abort controller for handling client-side cancellation
+    const controller = new AbortController();
+    req.on('close', () => {
+      console.log('Client closed connection, aborting AI generation...');
+      controller.abort();
+    });
+
     // Use the Local AI Service to generate a response
-    const aiResponse = await aiService.generateAnswer(prompt, context);
+    const aiResponse = await aiService.generateAnswer(prompt, context, controller.signal);
 
     // Save AI response
     await Message.create({

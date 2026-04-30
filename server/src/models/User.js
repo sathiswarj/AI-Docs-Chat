@@ -29,6 +29,15 @@ const userSchema = new mongoose.Schema({
     minlength: 6,
     select: false,
   },
+  phone: {
+    type: String,
+    default: '',
+  },
+  bio: {
+    type: String,
+    default: '',
+    maxlength: 300,
+  },
   createdAt: {
     type: Date,
     default: Date.now,

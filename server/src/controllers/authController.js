@@ -65,6 +65,33 @@ exports.getMe = async (req, res) => {
   }
 };
 
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username, phone, bio } = req.body;
+
+    const fieldsToUpdate = {};
+    if (username !== undefined) fieldsToUpdate.username = username;
+    if (phone !== undefined) fieldsToUpdate.phone = phone;
+    if (bio !== undefined) fieldsToUpdate.bio = bio;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      fieldsToUpdate,
+      { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      data: user,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      error: err.message,
+    });
+  }
+};
+
 const sendTokenResponse = (user, statusCode, res) => {
   const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
     expiresIn: '30d',
