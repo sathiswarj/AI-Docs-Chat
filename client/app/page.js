@@ -85,7 +85,7 @@ export default function Home() {
           console.error('Failed to fetch conversation history', error);
         }
       } else {
-        setMessages([{ role: 'ai', content: 'Hello! I am your AI research assistant. You can chat with me directly or upload a document using the icon on the left to start a focused analysis.' }]);
+        setMessages([{ role: 'ai', content: "Hello! I'm your AI assistant. How can I help you with your documents today?" }]);
         setFile(null);
         setExtractedText("");
         setIsProcessed(false);
@@ -163,7 +163,7 @@ export default function Home() {
     abortControllerRef.current = new AbortController();
 
     try {
-      const response = await chatService.sendMessage(userMessage, activeConversationId);
+      const response = await chatService.sendMessage(userMessage, activeConversationId, abortControllerRef.current.signal);
       
       if (!activeConversationId && response.conversationId) {
         setActiveConversationId(response.conversationId);

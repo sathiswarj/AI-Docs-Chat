@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+import Link from 'next/link';
+
 export default function Sidebar({
   file,
   pendingFile,
@@ -93,16 +95,18 @@ export default function Sidebar({
       </nav>
 
       <div className="p-4 mt-auto">
-        <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div className="p-3 bg-white border border-slate-200 rounded-2xl shadow-sm hover:border-black transition-colors">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm">
-              <User size={16} className="text-slate-600" />
-            </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-[11px] font-bold text-slate-900 truncate">{user?.username || 'Operator'}</p>
-              <p className="text-[9px] text-slate-400 truncate font-medium">{user?.email}</p>
-            </div>
-            <button onClick={logout} className="p-2 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-black transition-all">
+            <Link href="/account" className="flex items-center gap-3 flex-1 overflow-hidden group cursor-pointer">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200 shadow-sm group-hover:bg-black group-hover:border-black transition-all">
+                <User size={16} className="text-slate-600 group-hover:text-white transition-colors" />
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-[11px] font-bold text-slate-900 truncate group-hover:text-black">{user?.username || 'Operator'}</p>
+                <p className="text-[9px] text-slate-400 truncate font-medium group-hover:text-slate-600">{user?.email}</p>
+              </div>
+            </Link>
+            <button onClick={logout} className="p-2 hover:bg-red-50 hover:text-red-600 rounded-lg text-slate-400 transition-all" title="Logout">
               <LogOut size={16} />
             </button>
           </div>

@@ -33,9 +33,7 @@ export default function ChatWindow({
   return (
     <main className="flex-1 flex flex-col relative min-h-screen bg-white">
       <header className="h-16 border-b border-slate-200 flex items-center justify-between px-10 z-20 sticky top-0 bg-white/80 backdrop-blur-xl">
-        <div className="flex items-center gap-4">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Analysis Session</span>
-        </div>
+
 
         <div className="flex items-center gap-4">
           {isUploading && (
@@ -89,9 +87,7 @@ export default function ChatWindow({
               <div className={`p-5 rounded-3xl text-[15px] leading-relaxed shadow-sm whitespace-pre-wrap ${msg.role === 'ai' ? 'bg-slate-50 border border-slate-200 text-slate-800 rounded-tl-none' : 'bg-black text-white font-medium rounded-tr-none'}`}>
                 {msg.content}
               </div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] px-2">
-                {msg.role === 'ai' ? 'Analysis Node' : 'System Operator'}
-              </span>
+
             </div>
           </div>
         ))}
@@ -107,7 +103,7 @@ export default function ChatWindow({
                 <div className="w-1.5 h-1.5 bg-black rounded-full animate-bounce [animation-delay:-0.15s]" />
                 <div className="w-1.5 h-1.5 bg-black rounded-full animate-bounce" />
               </div>
-              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500 mr-4">Processing Intelligence</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-500 mr-4">Processing</span>
               <button
                 onClick={onStop}
                 className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-sm border border-slate-200"

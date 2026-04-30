@@ -65,8 +65,27 @@ export const AuthProvider = ({ children }) => {
     router.push('/login');
   };
 
+  const refreshUser = async () => {
+    try {
+      const data = await authService.getCurrentUser();
+      setUser(data.data);
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      const data = await import('../services/api.service').then(m => m.default.patch('/auth/profile', profileData));
+      setUser(data.data);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message || 'Failed to update profile' };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, logout, refreshUser, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
